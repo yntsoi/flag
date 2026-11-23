@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>國旗與區旗學習遊戲</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+    }
+
+    :root {
+      --bg-color: #FFF9E6;
+      --text-color: #1E293B;
+      --card-bg: #FFFFFF;
+      --card-border: #FCD34D;
+      --flag-size: 350px;
+      --primary-red: #DE2910;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang HK", "Traditional Chinese", "Noto Sans CJK HK", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease;
+    }
+
+    header {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+      position: relative;
+      z-index: 50;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--primary-red);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(222, 41, 16, 0.3);
+    }
+
+    .brand-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: #FFDE00;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge-level {
+      padding: 0.5rem 1.2rem;
+      background: #FEF08A;
+      color: #854D0E;
+      border: 2px solid #FDE047;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      outline: none;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      color: #FFFFFF;
+      border: 2px solid #FCA5A5;
+    }
+
+    .btn-secondary {
+      background: #475569;
+      color: #FFFFFF;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem;
+      width: 100%;
+      position: relative;
+    }
+
+    .view-screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .view-screen.active {
+      display: flex;
+    }
+
+    /* Settings Screen */
+    .settings-card {
+      background: var(--card-bg);
+      border: 4px solid var(--card-border);
+      border-radius: 2.2rem;
+      padding: 2.2rem;
+      width: 100%;
+      max-width: 880px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      margin-top: 1rem;
+    }
+
+    .settings-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .settings-header h2 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #DC2626;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: #F8FAFC;
+      padding: 1.1rem;
+      border-radius: 1.25rem;
+      border: 2px solid #E2E8F0;
+    }
+
+    .form-group label {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .input-hint {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #64748B;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1.2rem;
+      font-weight: 800;
+      border-radius: 12px;
+      border: 2px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #0F172A;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: #DC2626;
+    }
+
+    input[type="color"].form-control {
+      height: 52px;
+      padding: 0.2rem 0.4rem;
+      cursor: pointer;
+    }
+
+    /* Gameplay Screen */
+    #screenGame {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 120px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .task-box {
+      background: var(--card-bg);
+      border: 3px solid var(--card-border);
+      border-radius: 1.5rem;
+      padding: 1rem 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      width: 100%;
+      max-width: 750px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      z-index: 30;
+    }
+
+    .task-title {
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: #DC2626;
+    }
+
+    .play-area {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      overflow: hidden;
+    }
+
+    /* Flag Card */
+    .flag-card {
+      position: relative;
+      background: var(--card-bg);
+      border: 6px solid var(--card-border);
+      border-radius: 2rem;
+      padding: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 16px 32px rgba(0,0,0,0.1);
+      z-index: 10;
+      transition: border-color 0.2s, transform 0.2s ease;
+    }
+
+    .flag-card.moving {
+      position: absolute;
+      margin: 0 !important;
+      will-change: transform;
+    }
+
+    .flag-card:hover, .flag-card.dwelling {
+      border-color: #EF4444;
+      box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
+    }
+
+    .flag-card.correct-highlight {
+      border-color: #22C55E !important;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.6) !important;
+      animation: pulseGreen 1s ease infinite alternate;
+    }
+
+    .flag-card.wrong-shake {
+      animation: shakeWrong 0.5s ease;
+    }
+
+    @keyframes pulseGreen {
+      from { transform: scale(1.02); }
+      to { transform: scale(1.06); }
+    }
+
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-14px); }
+      40%, 80% { transform: translateX(14px); }
+    }
+
+    .flag-img-wrapper {
+      width: var(--flag-size);
+      aspect-ratio: 3 / 2;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      position: relative;
+      background: #FFFFFF;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flag-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .flag-label {
+      margin-top: 1rem;
+      font-size: 1.6rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    /* Eye-Tracker Dwell Overlay */
+    .dwell-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 1.5rem;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 20;
+    }
+
+    .flag-card.dwelling .dwell-overlay {
+      opacity: 1;
+    }
+
+    .dwell-svg {
+      width: 75%;
+      height: 75%;
+      transform: rotate(-90deg);
+    }
+
+    .dwell-bg {
+      stroke: rgba(255, 255, 255, 0.4);
+      stroke-width: 14;
+      fill: none;
+    }
+
+    .dwell-bar {
+      stroke: #EF4444;
+      stroke-width: 14;
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 440;
+      stroke-dashoffset: 440;
+      transition: stroke-dashoffset 0.05s linear;
+    }
+
+    .dwell-text {
+      position: absolute;
+      background: #FFFFFF;
+      color: #DC2626;
+      font-weight: 900;
+      font-size: 1.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      border: 3px solid #DC2626;
+    }
+
+    /* Completion Screen */
+    .completion-card {
+      background: var(--card-bg);
+      border: 6px solid #F59E0B;
+      border-radius: 2.5rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 750px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(245, 158, 11, 0.25);
+      margin-top: 2rem;
+    }
+
+    .trophy-box {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 1.5rem;
+      background: #FEF3C7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #F59E0B;
+    }
+
+    .trophy-box svg {
+      width: 50px;
+      height: 50px;
+      fill: #D97706;
+    }
+
+    .completion-title {
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #DC2626;
+      margin-bottom: 1rem;
+    }
+
+    .completion-desc {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .completion-flags {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .mini-flag {
+      width: 150px;
+      aspect-ratio: 3 / 2;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 3px solid rgba(0,0,0,0.15);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .mini-flag img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <h1>國旗與區旗學習遊戲</h1>
+      </div>
+    </div>
+
+    <div class="header-controls" id="headerGameControls" style="display: none;">
+      <div class="badge-level" id="levelBadge">關卡 1 / 4</div>
+      <button class="btn btn-secondary" id="btnReplayVoice">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        重聽題目
+      </button>
+      <button class="btn btn-secondary" id="btnBackToSettings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        設定
+      </button>
+    </div>
+  </header>
+
+  <canvas id="confettiCanvas"></canvas>
+
+  <main>
+    <!-- VIEW 1: SETTINGS SCREEN -->
+    <div class="view-screen active" id="screenSettings">
+      <div class="settings-card">
+        <div class="settings-header">
+          <h2>⚙️ 首頁設定</h2>
+        </div>
+
+        <div class="settings-grid">
+          <div class="form-group">
+            <label for="inputFlagSize">
+              <span>🖼️ 圖片大小 (Image Size)</span>
+              <span class="input-hint">像素 (px)</span>
+            </label>
+            <input type="number" id="inputFlagSize" class="form-control" value="350" min="150" max="600" step="10">
+          </div>
+
+          <div class="form-group">
+            <label for="inputDwellTime">
+              <span>👁️ 注視觸發時間 (Dwell Time)</span>
+              <span class="input-hint">秒 (sec)</span>
+            </label>
+            <input type="number" id="inputDwellTime" class="form-control" value="2.0" min="0.5" max="10.0" step="0.1">
+          </div>
+
+          <div class="form-group">
+            <label for="inputVolume">
+              <span>🔊 音量大小 (Volume)</span>
+              <span class="input-hint">0 - 100%</span>
+            </label>
+            <input type="number" id="inputVolume" class="form-control" value="80" min="0" max="100" step="5">
+          </div>
+
+          <div class="form-group">
+            <label for="inputBgColor">
+              <span>🎨 背景顏色 (Background Color)</span>
+              <span class="input-hint">顏色選擇</span>
+            </label>
+            <input type="color" id="inputBgColor" class="form-control" value="#FFF9E6">
+          </div>
+
+          <div class="form-group">
+            <label for="selectMoving">
+              <span>🏃 國旗在畫面移動 (Flag Motion)</span>
+              <span class="input-hint">第一、二關移動</span>
+            </label>
+            <select id="selectMoving" class="form-control">
+              <option value="true" selected>是 (Yes)</option>
+              <option value="false">否 (No)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inputMoveSpeed">
+              <span>⚡ 移動速度 (Movement Speed)</span>
+              <span class="input-hint">等級 (1 - 10)</span>
+            </label>
+            <input type="number" id="inputMoveSpeed" class="form-control" value="3" min="1" max="10" step="1">
+          </div>
+        </div>
+
+        <div style="text-align: center;">
+          <button class="btn btn-primary" id="btnStartGame" style="font-size: 1.6rem; padding: 1.1rem 4rem; border-radius: 1.5rem;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            開始遊戲 (Start Game)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: GAMEPLAY SCREEN -->
+    <div class="view-screen" id="screenGame">
+      <div class="task-box">
+        <h2 class="task-title" id="taskTitle"></h2>
+      </div>
+
+      <div class="play-area" id="playArea">
+        <!-- Dynamic Flag Cards -->
+      </div>
+    </div>
+
+    <!-- VIEW 3: COMPLETION SCREEN -->
+    <div class="view-screen" id="screenCompletion">
+      <div class="completion-card">
+        <div class="trophy-box">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 9V2h12v7a6 6 0 0 1-12 0z"/><path d="M6 4H4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h0"/><path d="M18 4h2a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h0"/><path d="M12 15v4"/><path d="M8 23h8"/>
+          </svg>
+        </div>
+
+        <h2 class="completion-title">恭喜你！完成任務！</h2>
+        <p class="completion-desc">你成功認識了中國國旗同香港區旗！你真係好叻！🎉</p>
+
+        <div class="completion-flags" id="completionFlags">
+          <!-- Dynamic Mini Flags -->
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:1.5rem;">
+          <button class="btn btn-primary" id="btnReplayGame" style="font-size: 1.4rem; padding: 0.9rem 2.5rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            再玩一次
+          </button>
+          <button class="btn btn-secondary" id="btnCompletionSettings" style="font-size: 1.4rem; padding: 0.9rem 2.5rem;">
+            設定
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* ==========================================================
+       1. FLAG IMAGE URL DEFINITIONS (EXACT WIKIMEDIA URLS)
+       ========================================================== */
+    const CHINA_FLAG_URL = 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Flag_of_the_People%27s_Republic_of_China.svg';
+    const HK_FLAG_URL = 'https://upload.wikimedia.org/wikipedia/commons/5/5b/Flag_of_Hong_Kong.svg';
+
+    /* ==========================================================
+       2. GAME CONFIGURATION & STATE
+       ========================================================== */
+    const config = {
+      flagSize: 350,
+      dwellTime: 2.0,
+      volume: 0.8,
+      bgColor: '#FFF9E6',
+      isMoving: true,
+      moveSpeed: 3
+    };
+
+    let currentLevel = 1;
+    let isProcessingAction = false;
+    let moveAnimFrame = null;
+    let movingCardObjects = [];
+
+    /* ==========================================================
+       3. WEB AUDIO ENGINE (BGM & SOUND EFFECTS)
+       ========================================================== */
+    let audioCtx = null;
+    let bgmTimer = null;
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function startBgm() {
+      stopBgm();
+      if (config.volume <= 0) return;
+
+      initAudioContext();
+      const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+      let index = 0;
+
+      bgmTimer = setInterval(() => {
+        if (!audioCtx || audioCtx.state !== 'running') return;
+        const now = audioCtx.currentTime;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(notes[index], now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.03 * config.volume, now + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 2.3);
+
+        index = (index + 1) % notes.length;
+      }, 2200);
+    }
+
+    function stopBgm() {
+      if (bgmTimer) {
+        clearInterval(bgmTimer);
+        bgmTimer = null;
+      }
+    }
+
+    function playApplause() {
+      initAudioContext();
+      if (!audioCtx) return;
+
+      const duration = 1.8;
+      const now = audioCtx.currentTime;
+      const bufferSize = audioCtx.sampleRate * duration;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1200;
+      filter.Q.value = 1.2;
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.01, now);
+
+      for (let t = 0; t < duration; t += 0.05) {
+        gain.gain.setValueAtTime((0.15 + Math.random() * 0.1) * config.volume, now + t);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + t + 0.045);
+      }
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      noise.start(now);
+      noise.stop(now + duration);
+    }
+
+    function playWrongSound() {
+      initAudioContext();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.3);
+
+      gain.gain.setValueAtTime(0.2 * config.volume, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.4);
+    }
+
+    /* ==========================================================
+       4. CANTONESE SPEECH SYNTHESIS ENGINE
+       ========================================================== */
+    function speakCantonese(text, onEndCallback = null) {
+      if (!('speechSynthesis' in window)) {
+        if (onEndCallback) setTimeout(onEndCallback, 1500);
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-HK';
+      utterance.rate = 0.82;
+      utterance.pitch = 1.0;
+      utterance.volume = config.volume;
+
+      const voices = window.speechSynthesis.getVoices();
+      const cantoneseVoice = voices.find(v => 
+        v.lang === 'zh-HK' || v.lang === 'yue-HK' || v.name.includes('Hong Kong') || v.name.includes('Cantonese')
+      ) || voices.find(v => v.lang.startsWith('zh'));
+
+      if (cantoneseVoice) utterance.voice = cantoneseVoice;
+
+      let callbackTriggered = false;
+      const safeCallback = () => {
+        if (!callbackTriggered) {
+          callbackTriggered = true;
+          if (onEndCallback) onEndCallback();
+        }
+      };
+
+      utterance.onend = safeCallback;
+      utterance.onerror = safeCallback;
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    /* ==========================================================
+       5. EYE-TRACKER & TOUCH DWELL ENGINE
+       ========================================================== */
+    function attachDwellEvents(element, onTrigger) {
+      let startTime = 0;
+      let animFrame = null;
+      let isDwelling = false;
+
+      const card = element.closest('.flag-card') || element;
+      const bar = card.querySelector('.dwell-bar');
+      const text = card.querySelector('.dwell-text');
+
+      const stopDwell = () => {
+        if (!isDwelling) return;
+        isDwelling = false;
+        card.classList.remove('dwelling');
+        if (animFrame) cancelAnimationFrame(animFrame);
+        if (bar) bar.style.strokeDashoffset = '440';
+        if (text) text.textContent = '0%';
+      };
+
+      const startDwell = () => {
+        if (isProcessingAction) return;
+        initAudioContext();
+        stopDwell();
+
+        isDwelling = true;
+        card.classList.add('dwelling');
+        startTime = performance.now();
+
+        const durationMs = config.dwellTime * 1000;
+
+        const loop = (now) => {
+          if (!isDwelling) return;
+          const elapsed = now - startTime;
+          const pct = Math.min((elapsed / durationMs) * 100, 100);
+
+          if (bar) {
+            const offset = 440 - (pct / 100) * 440;
+            bar.style.strokeDashoffset = offset;
+          }
+          if (text) text.textContent = Math.round(pct) + '%';
+
+          if (pct < 100) {
+            animFrame = requestAnimationFrame(loop);
+          } else {
+            stopDwell();
+            onTrigger();
+          }
+        };
+
+        animFrame = requestAnimationFrame(loop);
+      };
+
+      element.addEventListener('mouseenter', startDwell);
+      element.addEventListener('mouseleave', stopDwell);
+
+      element.addEventListener('touchstart', (e) => startDwell(), { passive: true });
+      element.addEventListener('touchend', stopDwell);
+      element.addEventListener('touchcancel', stopDwell);
+
+      element.addEventListener('click', () => {
+        stopDwell();
+        if (!isProcessingAction) onTrigger();
+      });
+    }
+
+    /* ==========================================================
+       6. UI VIEW SWITCHER & CONTROL
+       ========================================================== */
+    const screenSettings = document.getElementById('screenSettings');
+    const screenGame = document.getElementById('screenGame');
+    const screenCompletion = document.getElementById('screenCompletion');
+    const headerControls = document.getElementById('headerGameControls');
+    const taskTitle = document.getElementById('taskTitle');
+    const playArea = document.getElementById('playArea');
+    const levelBadge = document.getElementById('levelBadge');
+
+    function readInputsAndApplyConfig() {
+      const sizeVal = parseInt(document.getElementById('inputFlagSize').value, 10);
+      const dwellVal = parseFloat(document.getElementById('inputDwellTime').value);
+      const volVal = parseInt(document.getElementById('inputVolume').value, 10);
+      const bgVal = document.getElementById('inputBgColor').value;
+      const moveVal = document.getElementById('selectMoving').value === 'true';
+      const speedVal = parseInt(document.getElementById('inputMoveSpeed').value, 10);
+
+      if (!isNaN(sizeVal) && sizeVal > 0) config.flagSize = sizeVal;
+      if (!isNaN(dwellVal) && dwellVal > 0) config.dwellTime = dwellVal;
+      if (!isNaN(volVal) && volVal >= 0) config.volume = volVal / 100.0;
+      if (bgVal) config.bgColor = bgVal;
+      config.isMoving = moveVal;
+      if (!isNaN(speedVal) && speedVal > 0) config.moveSpeed = speedVal;
+
+      document.documentElement.style.setProperty('--bg-color', config.bgColor);
+      document.documentElement.style.setProperty('--flag-size', `${config.flagSize}px`);
+    }
+
+    function stopFlagMovement() {
+      if (moveAnimFrame) {
+        cancelAnimationFrame(moveAnimFrame);
+        moveAnimFrame = null;
+      }
+      movingCardObjects = [];
+    }
+
+    function switchView(viewName) {
+      stopFlagMovement();
+      screenSettings.classList.remove('active');
+      screenGame.classList.remove('active');
+      screenCompletion.classList.remove('active');
+
+      if (viewName === 'settings') {
+        screenSettings.classList.add('active');
+        headerControls.style.display = 'none';
+        taskTitle.textContent = '';
+        playArea.innerHTML = '';
+        stopBgm();
+        window.speechSynthesis.cancel();
+      } else if (viewName === 'game') {
+        screenGame.classList.add('active');
+        headerControls.style.display = 'flex';
+        startBgm();
+      } else if (viewName === 'completion') {
+        screenCompletion.classList.add('active');
+        headerControls.style.display = 'none';
+        startBgm();
+      }
+    }
+
+    function playCurrentTaskSpeech() {
+      let text = "";
+      if (currentLevel === 1) text = "第一關：認識中國國旗";
+      else if (currentLevel === 2) text = "第二關：認識香港區旗";
+      else if (currentLevel === 3) text = "第三關：請找出那一面是國旗";
+      else if (currentLevel === 4) text = "第四關：請找出那一面是區旗";
+
+      speakCantonese(text);
+    }
+
+    /* ==========================================================
+       7. LEVEL CONTROLLER & CARD RENDERER
+       ========================================================== */
+    function loadLevel(levelNum) {
+      stopFlagMovement();
+      currentLevel = levelNum;
+      isProcessingAction = false;
+      levelBadge.textContent = `關卡 ${currentLevel} / 4`;
+      playArea.innerHTML = '';
+
+      // Determine if flags should move in this level (Floating applies ONLY to Level 1 & Level 2)
+      const shouldMoveInThisLevel = config.isMoving && (currentLevel === 1 || currentLevel === 2);
+
+      if (currentLevel === 1) {
+        taskTitle.textContent = "第一關：認識中國國旗";
+        renderFlagCard('china', '中國國旗', shouldMoveInThisLevel);
+      } else if (currentLevel === 2) {
+        taskTitle.textContent = "第二關：認識香港區旗";
+        renderFlagCard('hk', '香港區旗', shouldMoveInThisLevel);
+      } else if (currentLevel === 3) {
+        taskTitle.textContent = "第三關：請找出那一面是國旗";
+        const order = Math.random() > 0.5 ? ['china', 'hk'] : ['hk', 'china'];
+        order.forEach(type => renderFlagCard(type, type === 'china' ? '中國國旗' : '香港區旗', false));
+      } else if (currentLevel === 4) {
+        taskTitle.textContent = "第四關：請找出那一面是區旗";
+        const order = Math.random() > 0.5 ? ['china', 'hk'] : ['hk', 'china'];
+        order.forEach(type => renderFlagCard(type, type === 'china' ? '中國國旗' : '香港區旗', false));
+      }
+
+      if (shouldMoveInThisLevel) {
+        requestAnimationFrame(() => initFlagMovement());
+      }
+
+      playCurrentTaskSpeech();
+    }
+
+    function renderFlagCard(type, label, isMoving) {
+      const card = document.createElement('div');
+      card.className = `flag-card ${isMoving ? 'moving' : ''}`;
+      card.dataset.type = type;
+
+      const flagImgUrl = (type === 'china') ? CHINA_FLAG_URL : HK_FLAG_URL;
+
+      card.innerHTML = `
+        <div class="flag-img-wrapper">
+          <img src="${flagImgUrl}" alt="${label}" loading="eager">
+        </div>
+        <div class="flag-label">${label}</div>
+        <div class="dwell-overlay">
+          <svg class="dwell-svg" viewBox="0 0 160 160">
+            <circle class="dwell-bg" cx="80" cy="80" r="70"/>
+            <circle class="dwell-bar" cx="80" cy="80" r="70"/>
+          </svg>
+          <div class="dwell-text">0%</div>
+        </div>
+      `;
+
+      playArea.appendChild(card);
+      attachDwellEvents(card, () => handleFlagSelection(type, card));
+    }
+
+    /* Bouncing Physics Motion Engine (for Level 1 & 2 only) */
+    function initFlagMovement() {
+      stopFlagMovement();
+      const cards = Array.from(playArea.querySelectorAll('.flag-card.moving'));
+      if (cards.length === 0) return;
+
+      const pRect = playArea.getBoundingClientRect();
+      const maxX = pRect.width;
+      const maxY = pRect.height;
+      const speedFactor = config.moveSpeed * 0.8;
+
+      movingCardObjects = cards.map((card, idx) => {
+        const cRect = card.getBoundingClientRect();
+        const w = cRect.width || config.flagSize;
+        const h = cRect.height || (config.flagSize * 0.7);
+
+        let x = (idx * (maxX - w - 40) / Math.max(1, cards.length - 1)) + 20;
+        let y = Math.max(20, (maxY - h) / 2);
+
+        const angle = (Math.random() * Math.PI * 2);
+        let vx = Math.cos(angle) * speedFactor;
+        let vy = Math.sin(angle) * speedFactor;
+        if (Math.abs(vx) < 0.8) vx = speedFactor;
+        if (Math.abs(vy) < 0.8) vy = speedFactor;
+
+        return { card, x, y, w, h, vx, vy };
+      });
+
+      function animateBounce() {
+        const rect = playArea.getBoundingClientRect();
+        const pW = rect.width;
+        const pH = rect.height;
+
+        movingCardObjects.forEach(obj => {
+          obj.x += obj.vx;
+          obj.y += obj.vy;
+
+          if (obj.x <= 10) {
+            obj.x = 10;
+            obj.vx *= -1;
+          } else if (obj.x + obj.w >= pW - 10) {
+            obj.x = Math.max(10, pW - obj.w - 10);
+            obj.vx *= -1;
+          }
+
+          if (obj.y <= 10) {
+            obj.y = 10;
+            obj.vy *= -1;
+          } else if (obj.y + obj.h >= pH - 10) {
+            obj.y = Math.max(10, pH - obj.h - 10);
+            obj.vy *= -1;
+          }
+
+          obj.card.style.transform = `translate3d(${obj.x}px, ${obj.y}px, 0)`;
+        });
+
+        moveAnimFrame = requestAnimationFrame(animateBounce);
+      }
+
+      moveAnimFrame = requestAnimationFrame(animateBounce);
+    }
+
+    function handleFlagSelection(selectedType, cardElement) {
+      if (isProcessingAction) return;
+
+      if (currentLevel === 1) {
+        isProcessingAction = true;
+        cardElement.classList.add('correct-highlight');
+        speakCantonese("中國國旗是紅色的，有五粒黃色星星。", () => {
+          setTimeout(() => loadLevel(2), 1500);
+        });
+      } else if (currentLevel === 2) {
+        isProcessingAction = true;
+        cardElement.classList.add('correct-highlight');
+        speakCantonese("香港區旗是紅色，有白色的紫荊花。", () => {
+          setTimeout(() => loadLevel(3), 1500);
+        });
+      } else if (currentLevel === 3) {
+        if (selectedType === 'china') {
+          isProcessingAction = true;
+          playApplause();
+          cardElement.classList.add('correct-highlight');
+          speakCantonese("答啱喇！呢面就係中國國旗！非常棒！", () => {
+            setTimeout(() => loadLevel(4), 1000);
+          });
+        } else {
+          playWrongSound();
+          cardElement.classList.add('wrong-shake');
+          setTimeout(() => cardElement.classList.remove('wrong-shake'), 600);
+          speakCantonese("請再嘗試");
+        }
+      } else if (currentLevel === 4) {
+        if (selectedType === 'hk') {
+          isProcessingAction = true;
+          playApplause();
+          cardElement.classList.add('correct-highlight');
+          speakCantonese("答啱喇！呢面就係香港區旗！你真棒！", () => {
+            setTimeout(() => triggerCompletion(), 1000);
+          });
+        } else {
+          playWrongSound();
+          cardElement.classList.add('wrong-shake');
+          setTimeout(() => cardElement.classList.remove('wrong-shake'), 600);
+          speakCantonese("請再嘗試");
+        }
+      }
+    }
+
+    function triggerCompletion() {
+      switchView('completion');
+
+      const cFlags = document.getElementById('completionFlags');
+      cFlags.innerHTML = `
+        <div class="mini-flag"><img src="${CHINA_FLAG_URL}" alt="中國國旗"></div>
+        <div class="mini-flag"><img src="${HK_FLAG_URL}" alt="香港區旗"></div>
+      `;
+
+      startConfetti();
+      speakCantonese("恭喜你完成晒所有關卡！你真係好叻！");
+    }
+
+    /* ==========================================================
+       8. CONFETTI CELEBRATION
+       ========================================================== */
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function startConfetti() {
+      confettiParticles = [];
+      const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
+      for (let i = 0; i < 90; i++) {
+        confettiParticles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          size: Math.random() * 10 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vy: Math.random() * 3 + 2,
+          vx: Math.random() * 2 - 1,
+          rot: Math.random() * 360,
+          vRot: Math.random() * 6 - 3
+        });
+      }
+
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confettiParticles.forEach(p => {
+          p.y += p.vy;
+          p.x += p.vx;
+          p.rot += p.vRot;
+          if (p.y > canvas.height) p.y = -20;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+        confettiAnimId = requestAnimationFrame(render);
+      }
+      render();
+    }
+
+    /* ==========================================================
+       9. INITIALIZATION & LISTENERS
+       ========================================================== */
+    document.getElementById('btnStartGame').addEventListener('click', () => {
+      readInputsAndApplyConfig();
+      switchView('game');
+      loadLevel(1);
+    });
+
+    document.getElementById('btnReplayGame').addEventListener('click', () => {
+      switchView('game');
+      loadLevel(1);
+    });
+
+    document.getElementById('btnCompletionSettings').addEventListener('click', () => switchView('settings'));
+    document.getElementById('btnReplayVoice').addEventListener('click', playCurrentTaskSpeech);
+    document.getElementById('btnBackToSettings').addEventListener('click', () => switchView('settings'));
+
+    readInputsAndApplyConfig();
+  </script>
+</body>
+</html>
